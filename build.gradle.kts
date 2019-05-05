@@ -1,17 +1,9 @@
-plugins {
-    kotlin("multiplatform") version "1.3.31"
-}
+description = "Screeps AI"
 
-repositories {
-    mavenCentral()
-}
-
-kotlin {
-    wasm32 {
-        binaries {
-            executable {
-                entryPoint = "screeps.main"
-            }
+subprojects {
+    buildscript {
+        repositories {
+            gradlePluginPortal()
         }
     }
 }
