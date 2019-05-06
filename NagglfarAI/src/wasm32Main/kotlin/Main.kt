@@ -1,5 +1,8 @@
-import screeps.game
+import screeps.Game
 
 fun main() {
-    print(game.time)
+    val cpu = Game.cpu
+    print("limit: ${cpu.limit}")
+    print("tickLimit: ${cpu.tickLimit}")
+    print("bucket: ${cpu.bucket}")
 }

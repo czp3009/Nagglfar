@@ -26,7 +26,6 @@ class Operation(
     override val isStatic: Boolean = false,
     vararg val args: Arg
 ) : Member {
-
     constructor(name: String, returnType: Type, vararg args: Arg) :
             this(name, returnType, false, *args)
 }

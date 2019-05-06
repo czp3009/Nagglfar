@@ -175,21 +175,21 @@ fun Operation.generateWasmStub(parent: Interface): String {
     val allArgs =
         (wasmTypedReceiverArgs(parent) + args.toList().wasmTypedMapping() + wasmTypedReturnMapping).joinToString(", ")
     return "@SymbolName(\"$wasmName\")\n" +
-            "external public fun $wasmName($allArgs): ${returnType.wasmReturnTypeMapping()}\n\n"
+            "external fun $wasmName($allArgs): ${returnType.wasmReturnTypeMapping()}\n\n"
 }
 
 fun Attribute.generateWasmSetterStub(parent: Interface): String {
     val wasmSetter = wasmSetterName(this.name, parent.name)
     val allArgs = (wasmTypedReceiverArgs(parent) + Arg("value", this.type).wasmTypedMapping()).joinToString(", ")
     return "@SymbolName(\"$wasmSetter\")\n" +
-            "external public fun $wasmSetter($allArgs): Unit\n\n"
+            "external fun $wasmSetter($allArgs): Unit\n\n"
 }
 
 fun Attribute.generateWasmGetterStub(parent: Interface): String {
     val wasmGetter = wasmGetterName(this.name, parent.name)
     val allArgs = (wasmTypedReceiverArgs(parent) + wasmTypedReturnMapping).joinToString(", ")
     return "@SymbolName(\"$wasmGetter\")\n" +
-            "external public fun $wasmGetter($allArgs): Int\n\n"
+            "external fun $wasmGetter($allArgs): Int\n\n"
 }
 
 fun Attribute.generateWasmStubs(parent: Interface) =
@@ -286,12 +286,12 @@ fun Arg.composeWasmArgs(): String = when (type) {
     is idlInt -> ""
     is idlFloat -> ""
     is idlDouble ->
-        "    var $name = twoIntsToDouble(${name}Upper, ${name}Lower);\n"
+        "    const $name = twoIntsToDouble(${name}Upper, ${name}Lower);\n"
     is idlString ->
-        "    var $name = toUTF16String(${name}Ptr, ${name}Len);\n"
+        "    const $name = toUTF16String(${name}Ptr, ${name}Len);\n"
     is idlObject -> TODO("implement me")
     is idlFunction ->
-        "    var $name = konan_dependencies.env.Konan_js_wrapLambda(lambdaResultArena, ${name}Index);\n"
+        "    const $name = konan_dependencies.env.Konan_js_wrapLambda(lambdaResultArena, ${name}Index);\n"
 
     is idlInterfaceRef -> TODO("Implement me")
     else -> error("Unexpected type")
@@ -351,9 +351,9 @@ fun Operation.generateJs(parent: Interface): String {
     val argList = args.map { it.name }.joinToString(", ")
     val composedArgsList = args.map { it.composeWasmArgs() }.joinToString("")
 
-    return "\n  ${wasmFunctionName(this.name, parent.name)}: function($wasmMapping) {\n" +
+    return "\n  ${wasmFunctionName(this.name, parent.name)}: ($wasmMapping) => {\n" +
             composedArgsList +
-            "    var result = ${receiver(parent)}$name($argList);\n" +
+            "    const result = ${receiver(parent)}$name($argList);\n" +
             "    return ${returnType.wasmReturnExpression};\n" +
             "  }"
 }
@@ -362,7 +362,7 @@ fun Attribute.generateJsSetter(parent: Interface): String {
     val valueArg = Arg("value", type)
     val allArgs = wasmReceiverArgName(parent) + valueArg.wasmArgNames()
     val wasmMapping = allArgs.joinToString(", ")
-    return "\n  ${wasmSetterName(name, parent.name)}: function($wasmMapping) {\n" +
+    return "\n  ${wasmSetterName(name, parent.name)}: ($wasmMapping) => {\n" +
             valueArg.composeWasmArgs() +
             "    ${receiver(parent)}$name = value;\n" +
             "  }"
@@ -371,8 +371,8 @@ fun Attribute.generateJsSetter(parent: Interface): String {
 fun Attribute.generateJsGetter(parent: Interface): String {
     val allArgs = wasmReceiverArgName(parent) + wasmReturnArgName
     val wasmMapping = allArgs.joinToString(", ")
-    return "\n  ${wasmGetterName(name, parent.name)}: function($wasmMapping) {\n" +
-            "    var result = ${receiver(parent)}$name;\n" +
+    return "\n  ${wasmGetterName(name, parent.name)}: ($wasmMapping) => {\n" +
+            "    const result = ${receiver(parent)}$name;\n" +
             "    return ${type.wasmReturnExpression};\n" +
             "  }"
 }
@@ -394,7 +394,7 @@ fun generateJs(interfaces: List<Interface>): String =
                     member.generateJs(interf)
                 }
             }.flatten().joinToString(",\n") +
-            "\n})\n"
+            "\n});\n"
 
 fun main() {
     File("StubGenerator/dist").run {
