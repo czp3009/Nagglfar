@@ -5,7 +5,7 @@ plugins {
 kotlin {
     wasm32 {
         binaries {
-            executable("compiled", listOf(RELEASE))
+            executable("compiled")
         }
 
         compilations {
