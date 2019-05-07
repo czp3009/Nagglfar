@@ -5,6 +5,103 @@ import kotlinx.wasm.jsinterop.JsValue
 import kotlinx.wasm.jsinterop.stringLengthBytes
 import kotlinx.wasm.jsinterop.stringPointer
 
+@SymbolName("knjs_get__Game_constructionSites")
+external fun knjs_get__Game_constructionSites(resultArena: Int): Int
+
+@SymbolName("knjs_get__Game_cpu")
+external fun knjs_get__Game_cpu(resultArena: Int): Int
+
+@SymbolName("knjs_get__Game_creeps")
+external fun knjs_get__Game_creeps(resultArena: Int): Int
+
+@SymbolName("knjs_get__Game_flags")
+external fun knjs_get__Game_flags(resultArena: Int): Int
+
+@SymbolName("knjs_get__Game_gcl")
+external fun knjs_get__Game_gcl(resultArena: Int): Int
+
+@SymbolName("knjs_get__Game_gpl")
+external fun knjs_get__Game_gpl(resultArena: Int): Int
+
+@SymbolName("knjs_get__Game_map")
+external fun knjs_get__Game_map(resultArena: Int): Int
+
+@SymbolName("knjs_get__Game_time")
+external fun knjs_get__Game_time(resultArena: Int): Int
+
+@SymbolName("knjs__Game_notify")
+external fun knjs__Game_notify(messagePtr: Int, messageLen: Int, groupInterval: Int, resultArena: Int): Unit
+
+open class Game(arena: Int, index: Int) : JsValue(arena, index) {
+    constructor(jsValue: JsValue) : this(jsValue.arena, jsValue.index)
+
+    companion object {
+        val constructionSites: JsValue
+            get() {
+                val wasmRetVal = knjs_get__Game_constructionSites(ArenaManager.currentArena)
+                return JsValue(ArenaManager.currentArena, wasmRetVal)
+            }
+
+        val cpu: Cpu
+            get() {
+                val wasmRetVal = knjs_get__Game_cpu(ArenaManager.currentArena)
+                return Cpu(ArenaManager.currentArena, wasmRetVal)
+            }
+
+        val creeps: JsValue
+            get() {
+                val wasmRetVal = knjs_get__Game_creeps(ArenaManager.currentArena)
+                return JsValue(ArenaManager.currentArena, wasmRetVal)
+            }
+
+        val flags: JsValue
+            get() {
+                val wasmRetVal = knjs_get__Game_flags(ArenaManager.currentArena)
+                return JsValue(ArenaManager.currentArena, wasmRetVal)
+            }
+
+        val gcl: Gcl
+            get() {
+                val wasmRetVal = knjs_get__Game_gcl(ArenaManager.currentArena)
+                return Gcl(ArenaManager.currentArena, wasmRetVal)
+            }
+
+        val gpl: Gpl
+            get() {
+                val wasmRetVal = knjs_get__Game_gpl(ArenaManager.currentArena)
+                return Gpl(ArenaManager.currentArena, wasmRetVal)
+            }
+
+        val map: GameMap
+            get() {
+                val wasmRetVal = knjs_get__Game_map(ArenaManager.currentArena)
+                return GameMap(ArenaManager.currentArena, wasmRetVal)
+            }
+
+        val time: Int
+            get() {
+                val wasmRetVal = knjs_get__Game_time(ArenaManager.currentArena)
+                return wasmRetVal
+            }
+
+        fun notify(message: String, groupInterval: Int): Unit {
+            knjs__Game_notify(
+                stringPointer(message),
+                stringLengthBytes(message),
+                groupInterval,
+                ArenaManager.currentArena
+            )
+            return
+        }
+
+    }
+}
+
+val JsValue.asGame: Game
+    get() {
+        return Game(this.arena, this.index)
+    }
+
 @SymbolName("knjs_get__Cpu_limit")
 external fun knjs_get__Cpu_limit(arena: Int, index: Int, resultArena: Int): Int
 
@@ -131,63 +228,94 @@ val JsValue.asGpl: Gpl
         return Gpl(this.arena, this.index)
     }
 
-@SymbolName("knjs_get__Game_cpu")
-external fun knjs_get__Game_cpu(resultArena: Int): Int
+@SymbolName("knjs__GameMap_describeExits")
+external fun knjs__GameMap_describeExits(roomNamePtr: Int, roomNameLen: Int, resultArena: Int): Int
 
-@SymbolName("knjs_get__Game_gcl")
-external fun knjs_get__Game_gcl(resultArena: Int): Int
+@SymbolName("knjs__GameMap_findExit")
+external fun knjs__GameMap_findExit(
+    fromRoomPtr: Int,
+    fromRoomLen: Int,
+    toRoomPtr: Int,
+    toRoomLen: Int,
+    resultArena: Int
+): Int
 
-@SymbolName("knjs_get__Game_gpl")
-external fun knjs_get__Game_gpl(resultArena: Int): Int
-
-@SymbolName("knjs_get__Game_time")
-external fun knjs_get__Game_time(resultArena: Int): Int
-
-@SymbolName("knjs__Game_notify")
-external fun knjs__Game_notify(messagePtr: Int, messageLen: Int, groupInterval: Int, resultArena: Int): Unit
-
-open class Game(arena: Int, index: Int) : JsValue(arena, index) {
+open class GameMap(arena: Int, index: Int) : JsValue(arena, index) {
     constructor(jsValue: JsValue) : this(jsValue.arena, jsValue.index)
 
     companion object {
-        val cpu: Cpu
-            get() {
-                val wasmRetVal = knjs_get__Game_cpu(ArenaManager.currentArena)
-                return Cpu(ArenaManager.currentArena, wasmRetVal)
-            }
-
-        val gcl: Gcl
-            get() {
-                val wasmRetVal = knjs_get__Game_gcl(ArenaManager.currentArena)
-                return Gcl(ArenaManager.currentArena, wasmRetVal)
-            }
-
-        val gpl: Gpl
-            get() {
-                val wasmRetVal = knjs_get__Game_gpl(ArenaManager.currentArena)
-                return Gpl(ArenaManager.currentArena, wasmRetVal)
-            }
-
-        val time: Int
-            get() {
-                val wasmRetVal = knjs_get__Game_time(ArenaManager.currentArena)
-                return wasmRetVal
-            }
-
-        fun notify(message: String, groupInterval: Int): Unit {
-            knjs__Game_notify(
-                stringPointer(message),
-                stringLengthBytes(message),
-                groupInterval,
+        fun describeExits(roomName: String): ExistDescriptor {
+            val wasmRetVal = knjs__GameMap_describeExits(
+                stringPointer(roomName),
+                stringLengthBytes(roomName),
                 ArenaManager.currentArena
             )
-            return
+            return ExistDescriptor(ArenaManager.currentArena, wasmRetVal)
+        }
+
+        fun findExit(fromRoom: String, toRoom: String): Int {
+            val wasmRetVal = knjs__GameMap_findExit(
+                stringPointer(fromRoom),
+                stringLengthBytes(fromRoom),
+                stringPointer(toRoom),
+                stringLengthBytes(toRoom),
+                ArenaManager.currentArena
+            )
+            return wasmRetVal
         }
 
     }
 }
 
-val JsValue.asGame: Game
+val JsValue.asGameMap: GameMap
     get() {
-        return Game(this.arena, this.index)
+        return GameMap(this.arena, this.index)
+    }
+
+@SymbolName("knjs_get__ExistDescriptor_1")
+external fun knjs_get__ExistDescriptor_1(arena: Int, index: Int, resultArena: Int): Int
+
+@SymbolName("knjs_get__ExistDescriptor_3")
+external fun knjs_get__ExistDescriptor_3(arena: Int, index: Int, resultArena: Int): Int
+
+@SymbolName("knjs_get__ExistDescriptor_5")
+external fun knjs_get__ExistDescriptor_5(arena: Int, index: Int, resultArena: Int): Int
+
+@SymbolName("knjs_get__ExistDescriptor_7")
+external fun knjs_get__ExistDescriptor_7(arena: Int, index: Int, resultArena: Int): Int
+
+open class ExistDescriptor(arena: Int, index: Int) : JsValue(arena, index) {
+    constructor(jsValue: JsValue) : this(jsValue.arena, jsValue.index)
+
+    val `1`: String
+        get() {
+            val wasmRetVal = knjs_get__ExistDescriptor_1(this.arena, this.index, ArenaManager.currentArena)
+            return TODO("Implement me")
+        }
+
+    val `3`: String
+        get() {
+            val wasmRetVal = knjs_get__ExistDescriptor_3(this.arena, this.index, ArenaManager.currentArena)
+            return TODO("Implement me")
+        }
+
+    val `5`: String
+        get() {
+            val wasmRetVal = knjs_get__ExistDescriptor_5(this.arena, this.index, ArenaManager.currentArena)
+            return TODO("Implement me")
+        }
+
+    val `7`: String
+        get() {
+            val wasmRetVal = knjs_get__ExistDescriptor_7(this.arena, this.index, ArenaManager.currentArena)
+            return TODO("Implement me")
+        }
+
+    companion object {
+    }
+}
+
+val JsValue.asExistDescriptor: ExistDescriptor
+    get() {
+        return ExistDescriptor(this.arena, this.index)
     }

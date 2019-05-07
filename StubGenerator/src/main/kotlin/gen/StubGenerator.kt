@@ -157,7 +157,7 @@ fun Attribute.generateKotlinGetter(parent: Interface): String {
 fun Attribute.generateKotlin(parent: Interface): String {
     val kotlinType = type.toKotlinType(name)
     val varOrVal = if (readOnly) "val" else "var"
-    return "  $varOrVal $name: $kotlinType\n" +
+    return "  $varOrVal ${if (!name.first().isLetter()) "`$name`" else name}: $kotlinType\n" +
             generateKotlinGetter(parent) +
             if (!readOnly) generateKotlinSetter(parent) else ""
 }
